@@ -65,7 +65,7 @@ def initiate_scan(scan_name, progress_callback = None):
         image_name=scan_url.split('?')[0].split('/')[2])
   return ScanResults(success=False)
 
-def scan_and_wait(scan_name, progress_callback)
+def scan_and_wait(scan_name, progress_callback):
   res = initiate_scan(scan_name, progress_callback)
   if not res.success:
     print 'Scanning failed.'
