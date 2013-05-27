@@ -1,0 +1,4 @@
+GPIO 18: Blue LED (blue wire)
+GPIO 23: Green LED (green wire)
+GPIO 22: Right button (blue wire)
+GPIO 17: Left button (yellow wire)

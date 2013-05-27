@@ -1,0 +1,14 @@
+* Set up GPIO pins. Can be done from the command line, set up GPIO pin 17 this
+* way:
+echo 17 > /sys/class/gpio/export
+echo in > /sys/class/gpio/gpio17/direction
+echo falling > /sys/class/gpio/gpio17/edge
+
+* python code
+import select
+f = open('/sys/class/gpio/gpio17/value', 'rw')
+f2 = open('/sys/class/gpio/gpio22/value', 'rw')
+p.register(f.fileno(), select.POLLPRI)
+p.register(f2.fileno(), select.POLLPRI)
+p.(10000)
+f.read()
