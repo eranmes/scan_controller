@@ -9,7 +9,7 @@ import smtplib,email,email.encoders,email.mime.text,email.mime.base
 
 SERVER_URL = 'http://raspberrypi.local:8081/do_scan'
 MAX_WAIT = 60
-POLL_INTERVAL = 0.5 # seconds
+POLL_INTERVAL = 1 # seconds
 FROM_ADDRESS = 'scanner@over-here.org'
 
 def extract_scan_name(get_reply):
@@ -22,19 +22,19 @@ def extract_scan_name(get_reply):
 def send_email(to_list, scan_name, scan_contents, scan_content_type):
   emailMsg = email.MIMEMultipart.MIMEMultipart()
   emailMsg['Subject'] = 'Test email with attachment.'
-  emaisMsg['From'] = FROM_ADDRESS
+  emailMsg['From'] = FROM_ADDRESS
   emailMsg['To'] = ', '.join(to_list)
   emailMsg.attach(email.mime.text.MIMEText('Your scan from today.', 'text'))
-  fileMsg = email.mime.base.MIMEBase(scan_content_type.split('/'))
+  fileMsg = email.mime.base.MIMEBase(*scan_content_type.split('/'))
   fileMsg.set_payload(scan_contents)
   email.encoders.encode_base64(fileMsg)
   fileMsg.add_header('Content-Disposition','attachment;filename=%s' % (scan_name))
   emailMsg.attach(fileMsg)
-  smtpclient = smtplib.SMTP(smtpserver)
+  smtpclient = smtplib.SMTP('192.168.2.3', 25)
   smtpclient.sendmail(FROM_ADDRESS, to_list, emailMsg.as_string())
   smtpclient.quit()
 
-ScanResults = namedtuple('ScanResults', ['success', 'image_url', 'image_name'], verbose=True)
+ScanResults = namedtuple('ScanResults', ['success', 'image_url', 'image_name'], verbose=False)
 
 def initiate_scan(scan_name, progress_callback = None):
   params = urlencode({'scan_name': scan_name})
@@ -82,9 +82,9 @@ def scan_and_wait(scan_name, progress_callback):
 
 
 def progress_callback():
-  print 'Starting PWM...'
+  print 'Starting wait...'
   time.sleep(POLL_INTERVAL)
-  print 'Finishing PWM...'
+  #print 'Finishing PWM...'
 
 if __name__ == '__main__':
   scan_name = 'scan_' + time.strftime('%Y_%m_%d_%H_%S')
