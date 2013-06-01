@@ -24,7 +24,7 @@ def send_email(to_list, scan_name, scan_contents, scan_content_type):
   emailMsg['Subject'] = 'Test email with attachment.'
   emailMsg['From'] = FROM_ADDRESS
   emailMsg['To'] = ', '.join(to_list)
-  emailMsg.attach(email.mime.text.MIMEText('Your scan from today.', 'text'))
+  emailMsg.attach(email.mime.text.MIMEText('Your scan from today.', 'plain'))
   fileMsg = email.mime.base.MIMEBase(*scan_content_type.split('/'))
   fileMsg.set_payload(scan_contents)
   email.encoders.encode_base64(fileMsg)
