@@ -67,5 +67,5 @@ class PinPoller(object):
   def WaitForEvent(self):
     self._Setup()
     res = p.poll(10000)
-    return [p if self._pin_to_fd[p].read() != '' for p in self._input_pins]
+    return [p for p in self._input_pins if self._pin_to_fd[p].read() != '']
 
