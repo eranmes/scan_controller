@@ -28,7 +28,10 @@ class PwmPin(object):
       raise RuntimeError('PWM only supported on pin %d, not %d' %
           (GPIO_PWM_PIN, pin_num))
     self._pin = pin_num
-    self._output_file = open('/sys/class/rpi-pwm/pwm0/duty', 'rw')
+    setup_pin_for_output(self._pin)
+    with open('/sys/class/rpi-pwm/pwm0/active', 'w') as f:
+      f.write('1')
+    self._output_file = open('/sys/class/rpi-pwm/pwm0/duty', 'w')
 
   def SetValue(self, pwm_value):
     self._output_file.write('%d\n' % pwm_value)
@@ -55,17 +58,19 @@ class PinPoller(object):
 
   def _Setup(self):
     if not self._pin_to_fd:
-      self._poller = select.select # TODO fixme
+      self._poller = select.epoll()
       for pin in self._input_pins:
         setup_pin_for_input(pin)
       for pin in self._input_pins:
-        f = open('/sys/class/gpio/gpio%d/value' % pin, 'rw')
+        f = open('/sys/class/gpio/gpio%d/value' % pin, 'r')
         f.read() # To clear any remaining events
+        print 'Adding fd %d for pin %d' % (f.fileno(), pin)
         self._poller.register(f.fileno(), select.POLLPRI)
         self._pin_to_fd[pin] = f
 
   def WaitForEvent(self):
     self._Setup()
-    res = p.poll(10000)
+    res = self._poller.poll(10000)
+    print 'poll res:',res
     return [p for p in self._input_pins if self._pin_to_fd[p].read() != '']
 
