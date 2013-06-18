@@ -28,7 +28,7 @@ class PwmPin(object):
       raise RuntimeError('PWM only supported on pin %d, not %d' %
           (GPIO_PWM_PIN, pin_num))
     self._pin = pin_num
-    self._output_file = open('FIND_GPIO_PWM_PATH', 'rw')
+    self._output_file = open('/sys/class/rpi-pwm/pwm0/duty', 'rw')
 
   def SetValue(self, pwm_value):
     self._output_file.write('%d\n' % pwm_value)
