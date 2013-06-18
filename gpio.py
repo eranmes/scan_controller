@@ -9,17 +9,17 @@ def _export_pin(pin_num):
 def _write_pin_direction(pin_num, pin_mode):
   if pin_mode != 'in' and pin_mode != 'out':
     raise RuntimeError('Pin mode can only be in or out, was %s' % pin_mode)
-  with open('/sys/class/gpio/gpio%d/direction', 'w') as f:
+  with open('/sys/class/gpio/gpio%d/direction' % pin_num, 'w') as f:
     f.write('%s\n' % pin_mode)
 
 def setup_pin_for_output(pin_num):
   _export_pin(pin_num)
-  _write_pin_direction('out')
+  _write_pin_direction(pin_num, 'out')
 
 def setup_pin_for_input(pin_num):
   _export_pin(pin_num)
-  _write_pin_direction('in')
-  with open('/sys/class/gpio/gpio%d/edge', 'w') as f:
+  _write_pin_direction(pin_num, 'in')
+  with open('/sys/class/gpio/gpio%d/edge' % pin_num, 'w') as f:
     f.write('falling\n')
 
 class PwmPin(object):
@@ -37,7 +37,7 @@ class OutputPin(object):
   def __init__(self, output_pin):
     self._pin = output_pin
     setup_pin_for_output(self._pin)
-    self._output_file = open('/sys/class/gpio/gpio%d/value' % self._pin)
+    self._output_file = open('/sys/class/gpio/gpio%d/value' % self._pin, 'w')
 
   def _WriteValue(self, v):
     self._output_file.write('%d\n')
