@@ -15,4 +15,7 @@ if __name__ == '__main__':
     events_on_pins = poller.WaitForEvent()
     print 'Events on pins', events_on_pins
 
+  poller.Cleanup()
+  status_pin.Cleanup()
+
 
