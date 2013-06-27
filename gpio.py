@@ -1,3 +1,4 @@
+import os
 import select
 
 GPIO_PWM_PIN = 18
@@ -96,25 +97,26 @@ class PinPoller(object):
       for pin in self._input_pins:
         setup_pin_for_input(pin)
       for pin in self._input_pins:
-        f = open('/sys/class/gpio/gpio%d/value' % pin, 'r')
-        f.read() # To clear any remaining events
-        print 'Adding fd %d for pin %d' % (f.fileno(), pin)
-        self._poller.register(f.fileno(), select.POLLPRI)
-        self._pin_to_fd[pin] = f
+        fd = os.open('/sys/class/gpio/gpio%d/value' % pin, os.O_RDONLY | os.O_NONBLOCK)
+        print 'Adding fd %d for pin %d. First read: %s' % (fd, pin, os.read(fd, 128))
+        self._poller.register(fd, select.POLLPRI)
+        self._pin_to_fd[pin] = fd
 
   def WaitForEvent(self):
     self._Setup()
     res = self._poller.poll(10000)
     print 'poll res:',res
+    res_fds = [t[0] for t in res]
     for fd, eventmask in res:
       print 'On FD %d: %s' % (fd, ','.join(eventmask_to_strings(eventmask)))
+      print 'Read result:', os.read(fd, 128)
 
-    return [p for p in self._input_pins if self._pin_to_fd[p].read() != '']
+    return [p for p in self._input_pins if self._pin_to_fd[p] in res_fds]
 
   def Cleanup(self):
     pins = self._pin_to_fd.keys()
     for p in pins:
-      f = self._pin_to_fd.pop(p)
-      self._poller.unregister(f.fileno())
-      f.close()
+      fd = self._pin_to_fd.pop(p)
+      self._poller.unregister(fd)
+      os.close(fd)
       _unexport_pin(p)
