@@ -84,7 +84,6 @@ class OutputPin(object):
   def __init__(self, output_pin):
     self._pin = output_pin
     setup_pin_for_output(self._pin)
-    self._output_file = open('/sys/class/gpio/gpio%d/value' % self._pin, 'w')
 
   def _WriteValue(self, v):
     with open('/sys/class/gpio/gpio%d/value' % self._pin, 'w') as f:
