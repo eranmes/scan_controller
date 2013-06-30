@@ -30,11 +30,11 @@ if __name__ == '__main__':
   print 'Pulsing PWM led.'
   for i in range(1, 100):
     pwm.SetValue(i)
-    time.sleep(0.1)
+    time.sleep(0.01)
   print 'Fading out...'
   for i in range(99, 0, -1):
     pwm.SetValue(i)
-    time.sleep(0.1)
+    time.sleep(0.01)
 
   poller.Cleanup()
   status_pin.Cleanup()

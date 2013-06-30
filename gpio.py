@@ -43,12 +43,14 @@ class PwmPin(object):
     with open('/sys/class/rpi-pwm/pwm0/active', 'w') as f:
       f.write('0\n')
     time.sleep(0.01)
-    try:
-      with open('/sys/class/rpi-pwm/pwm0/active', 'w') as f:
-        f.write('1\n')
-    except IOError as e:
-      pass
+    with open('/sys/class/rpi-pwm/pwm0/duty', 'w') as f:
+      f.write('99\n')
     time.sleep(0.01)
+    with open('/sys/class/rpi-pwm/pwm0/active', 'w') as f:
+      f.write('1\n')
+    time.sleep(0.01)
+    with open('/sys/class/rpi-pwm/pwm0/duty', 'w') as f:
+      f.write('1\n')
 
   def SetValue(self, pwm_value):
     # Normalize value.
