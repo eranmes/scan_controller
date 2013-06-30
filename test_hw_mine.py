@@ -16,16 +16,25 @@ if __name__ == '__main__':
     events_on_pins = poller.WaitForEvent()
     print 'Events on pins', events_on_pins
 
+  raw_input("Press Enter when ready for pin test\n>")  
   print 'Changing status pin state.'
+  print 'Setting Low.'
   status_pin.SetLow()
   time.sleep(3)
+  print 'Setting High.'
   status_pin.SetHigh()
   time.sleep(3)
+  print 'Setting Low.'
   status_pin.SetLow()
+  time.sleep(3)
   print 'Pulsing PWM led.'
   for i in range(1, 100):
     pwm.SetValue(i)
-    time.sleep(0.01)
+    time.sleep(0.1)
+  print 'Fading out...'
+  for i in range(99, 0, -1):
+    pwm.SetValue(i)
+    time.sleep(0.1)
 
   poller.Cleanup()
   status_pin.Cleanup()

@@ -1,5 +1,6 @@
 import os
 import select
+import time
 
 GPIO_PWM_PIN = 18
 
@@ -19,10 +20,12 @@ def _write_pin_direction(pin_num, pin_mode):
 
 def setup_pin_for_output(pin_num):
   _export_pin(pin_num)
+  time.sleep(0.01)
   _write_pin_direction(pin_num, 'out')
 
 def setup_pin_for_input(pin_num):
   _export_pin(pin_num)
+  time.sleep(0.01)
   _write_pin_direction(pin_num, 'in')
   with open('/sys/class/gpio/gpio%d/edge' % pin_num, 'w') as f:
     f.write('falling\n')
@@ -33,12 +36,19 @@ class PwmPin(object):
       raise RuntimeError('PWM only supported on pin %d, not %d' %
           (GPIO_PWM_PIN, pin_num))
     self._pin = pin_num
-    setup_pin_for_output(self._pin)
+    #setup_pin_for_output(self._pin)
     with open('/sys/class/rpi-pwm/pwm0/frequency', 'w') as f:
       f.write('%s\n' % freq_value)
+    time.sleep(0.01)
     with open('/sys/class/rpi-pwm/pwm0/active', 'w') as f:
-      f.write('1\n')
-    self._output_file = open('/sys/class/rpi-pwm/pwm0/duty', 'w')
+      f.write('0\n')
+    time.sleep(0.01)
+    try:
+      with open('/sys/class/rpi-pwm/pwm0/active', 'w') as f:
+        f.write('1\n')
+    except IOError as e:
+      pass
+    time.sleep(0.01)
 
   def SetValue(self, pwm_value):
     # Normalize value.
@@ -47,7 +57,9 @@ class PwmPin(object):
     if pwm_value > 99:
       pwm_value = 99
     try:
+      self._output_file = open('/sys/class/rpi-pwm/pwm0/duty', 'w')
       self._output_file.write('%d\n' % pwm_value)
+      self._output_file.close()
     except IOError as e:
       self._reopen()
 
@@ -56,9 +68,10 @@ class PwmPin(object):
       self._output_file.close()
     except IOError as e:
       pass
-    _unexport_pin(self._pin)
+    #_unexport_pin(self._pin)
 
   def _reopen(self):
+    print 'Re-opening PWM file.'
     try:
       self._output_file.close()
     except IOError as e:
@@ -72,7 +85,8 @@ class OutputPin(object):
     self._output_file = open('/sys/class/gpio/gpio%d/value' % self._pin, 'w')
 
   def _WriteValue(self, v):
-    self._output_file.write('%d\n')
+    with open('/sys/class/gpio/gpio%d/value' % self._pin, 'w') as f:
+      f.write('%d\n' % v)
 
   def SetHigh(self):
     self._WriteValue(1)
@@ -81,11 +95,11 @@ class OutputPin(object):
     self._WriteValue(0)
 
   def Cleanup(self):
-    try:
-      self._output_file.close()
-    except IOError as e:
-      pass
-    self._output_file = None
+    #try:
+    #  self._output_file.close()
+    #except IOError as e:
+    #  pass
+    #self._output_file = None
     _unexport_pin(self._pin)
 
 event_to_string = {
