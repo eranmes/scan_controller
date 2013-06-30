@@ -28,18 +28,42 @@ def setup_pin_for_input(pin_num):
     f.write('falling\n')
 
 class PwmPin(object):
-  def __init__(self, pin_num):
+  def __init__(self, pin_num, freq_value = 1000):
     if pin_num != GPIO_PWM_PIN:
       raise RuntimeError('PWM only supported on pin %d, not %d' %
           (GPIO_PWM_PIN, pin_num))
     self._pin = pin_num
     setup_pin_for_output(self._pin)
+    with open('/sys/class/rpi-pwm/pwm0/frequency', 'w') as f:
+      f.write('%s\n' % freq_value)
     with open('/sys/class/rpi-pwm/pwm0/active', 'w') as f:
-      f.write('1')
+      f.write('1\n')
     self._output_file = open('/sys/class/rpi-pwm/pwm0/duty', 'w')
 
   def SetValue(self, pwm_value):
-    self._output_file.write('%d\n' % pwm_value)
+    # Normalize value.
+    if (pwm_value < 1):
+      pwm_value = 1
+    if pwm_value > 99:
+      pwm_value = 99
+    try:
+      self._output_file.write('%d\n' % pwm_value)
+    except IOError as e:
+      self._reopen()
+
+  def Cleanup(self):
+    try:
+      self._output_file.close()
+    except IOError as e:
+      pass
+    _unexport_pin(self._pin)
+
+  def _reopen(self):
+    try:
+      self._output_file.close()
+    except IOError as e:
+      pass
+    self._output_file = open('/sys/class/rpi-pwm/pwm0/duty', 'w')
 
 class OutputPin(object):
   def __init__(self, output_pin):

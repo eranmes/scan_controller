@@ -65,7 +65,7 @@ def initiate_scan(scan_name, progress_callback = None):
         image_name=scan_url.split('?')[0].split('/')[2])
   return ScanResults(success=False)
 
-def scan_and_wait(scan_name, progress_callback):
+def scan_and_wait(scan_name, progress_callback, recipients):
   res = initiate_scan(scan_name, progress_callback)
   if not res.success:
     print 'Scanning failed.'
@@ -77,7 +77,7 @@ def scan_and_wait(scan_name, progress_callback):
     return False
   image_buffer = img_req.read()
   content_type = img_req.headers.getheader('Content-Type')
-  send_email(['eran@over-here.org', 'eran.mes@gmail.com'], scan_name, image_buffer, content_type)
+  send_email(recipients, scan_name, image_buffer, content_type)
   return True
 
 
@@ -88,5 +88,5 @@ def progress_callback():
 
 if __name__ == '__main__':
   scan_name = 'scan_' + time.strftime('%Y_%m_%d_%H_%S')
-  r = scan_and_wait(scan_name, progress_callback)
+  r = scan_and_wait(scan_name, progress_callback, ['eran.mes@gmail.com'])
   print 'Scan successful?',r

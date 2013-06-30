@@ -12,23 +12,26 @@ class BlinkReporter(object):
     self._pwm_pin = pin_pwm_control
 
   def Blink(self):
-    for i in (range(1000) + range(1000, -1, -1)):
+    for i in (range(1, 100) + range(99, 0, -1)):
       self._pwm_pin.SetValue(i)
-      time.sleep(0.001)
+      time.sleep(0.01)
 
 if __name__ == '__main__':
-  #progress_pin = gpio.OutputPin(PROGRESS_PIN)
   status_pin = gpio.OutputPin(STATUS_PIN)
   status_pin.SetHigh()
   poller = gpio.PinPoller(INPUT_PIN_TO_EMAIL.keys())
   blinker = BlinkReporter(gpio.PwmPin(PROGRESS_PIN))
   while True:
+    print 'Waiting for events...'
     events_on_pins = poller.WaitForEvent()
     recipients = [INPUT_PIN_TO_EMAIL[p] for p in events_on_pins]
+    print 'Recipients:',recipients
     if recipients:
       scan_name = 'scan_' + time.strftime('%Y_%m_%d_%H_%S')
-      scan_res = scan_client.scan_and_wait(scan_name, recipients, None)
+      scan_res = scan_client.scan_and_wait(scan_name, blinker.Blink, recipients)
       if scan_res:
         status_pin.SetHigh() # Green for OK. Could be red from a previous attempt.
       else:
         status_pin.SetLow() # Red for failure
+    else:
+      print 'No events, re-trying.'
