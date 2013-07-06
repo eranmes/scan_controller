@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import time
 import scan_client
 import gpio
