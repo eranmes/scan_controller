@@ -32,8 +32,11 @@ if __name__ == '__main__':
     debounce_check = (time.time() - last_scan_time) > 15
     print 'Recipients:',recipients
     if recipients and debounce_check:
-      scan_name = 'scan_' + time.strftime('%Y_%m_%d_%H_%S')
-      scan_res = scan_client.scan_and_wait(scan_name, blinker.Blink, recipients)
+      scan_mail_subject = 'Your scan at %s' % (
+          time.strftime('%Y-%m-%d %H:%M'))
+      scan_name = 'scan_' + time.strftime('%Y_%m_%d_%H_%M')
+      scan_res = scan_client.scan_and_wait(
+          scan_name, blinker.Blink, recipients, scan_mail_subject)
       if scan_res:
         status_pin.SetHigh() # Green for OK. Could be red from a previous attempt.
       else:

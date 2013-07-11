@@ -19,12 +19,13 @@ def extract_scan_name(get_reply):
     return
   return m.group(1)
 
-def send_email(to_list, scan_name, scan_contents, scan_content_type):
+def send_email(to_list, scan_name, scan_contents, scan_content_type,
+    mail_subject = 'Test email', mail_body = 'Attached is your scan.'):
   emailMsg = email.MIMEMultipart.MIMEMultipart()
-  emailMsg['Subject'] = 'Test email with attachment.'
+  emailMsg['Subject'] = mail_subject
   emailMsg['From'] = FROM_ADDRESS
   emailMsg['To'] = ', '.join(to_list)
-  emailMsg.attach(email.mime.text.MIMEText('Your scan from today.', 'plain'))
+  emailMsg.attach(email.mime.text.MIMEText(mail_body, 'plain'))
   fileMsg = email.mime.base.MIMEBase(*scan_content_type.split('/'))
   fileMsg.set_payload(scan_contents)
   email.encoders.encode_base64(fileMsg)
@@ -65,7 +66,7 @@ def initiate_scan(scan_name, progress_callback = None):
         image_name=scan_url.split('?')[0].split('/')[2])
   return ScanResults(success=False)
 
-def scan_and_wait(scan_name, progress_callback, recipients):
+def scan_and_wait(scan_name, progress_callback, recipients, mail_subject):
   res = initiate_scan(scan_name, progress_callback)
   if not res.success:
     print 'Scanning failed.'
@@ -77,7 +78,9 @@ def scan_and_wait(scan_name, progress_callback, recipients):
     return False
   image_buffer = img_req.read()
   content_type = img_req.headers.getheader('Content-Type')
-  send_email(recipients, scan_name, image_buffer, content_type)
+  send_email(to_list=recipients, scan_name=scan_name,
+      scan_contents=image_buffer, scan_content_type=content_type,
+      mail_subject=mail_subject)
   return True
 
 
@@ -87,6 +90,8 @@ def progress_callback():
   #print 'Finishing PWM...'
 
 if __name__ == '__main__':
-  scan_name = 'scan_' + time.strftime('%Y_%m_%d_%H_%S')
-  r = scan_and_wait(scan_name, progress_callback, ['eran.mes@gmail.com'])
+  scan_name = 'scan_' + time.strftime('%Y_%m_%d_%H_%M')
+  scan_mail_subject = 'Your scan at %s' % (time.strftime('%Y-%m-%d %H:%M'))
+  r = scan_and_wait(scan_name, progress_callback, ['eran.mes@gmail.com'],
+      scan_mail_subject)
   print 'Scan successful?',r
