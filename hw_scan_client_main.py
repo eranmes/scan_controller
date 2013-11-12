@@ -20,7 +20,7 @@ class BlinkReporter(object):
 if __name__ == '__main__':
   status_pin = gpio.OutputPin(STATUS_PIN)
   poller = gpio.PinPoller(INPUT_PIN_TO_EMAIL.keys())
-  blinker = BlinkReporter(gpio.PwmPin(PROGRESS_PIN))
+  blinker = BlinkReporter(gpio.createPwm(PROGRESS_PIN))
   #status_pin.SetLow()
   #time.sleep(0.01)
   status_pin.SetHigh()

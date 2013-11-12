@@ -30,6 +30,9 @@ def setup_pin_for_input(pin_num):
   with open('/sys/class/gpio/gpio%d/edge' % pin_num, 'w') as f:
     f.write('falling\n')
 
+def has_pwm_capabilities():
+  return os.path.exists('/sys/class/rpi-pwm')
+
 class PwmPin(object):
   def __init__(self, pin_num, freq_value = 1000):
     if pin_num != GPIO_PWM_PIN:
@@ -79,6 +82,28 @@ class PwmPin(object):
     except IOError as e:
       pass
     self._output_file = open('/sys/class/rpi-pwm/pwm0/duty', 'w')
+
+# Dummy PWM
+class SoftwarePwmPin(object):
+  def __init__(self, output_pin_number):
+    self._output_pin = OutputPin(output_pin_number)
+
+  def SetValue(self, pwm_value):
+    # Normalize value.
+    if (pwm_value < 50):
+      self._output_pin.SetLow()
+    else:
+      self._output_pin.SetHigh()
+
+  def Cleanup(self):
+    self._output_pin.Cleanup()
+    self._output_pin = None
+
+def createPwm(pwm_pin_number):
+  if has_pwm_capabilities():
+    return PwmPin(pwm_pin_number)
+  else:
+    return SoftwarePwmPin(pwm_pin_number)
 
 class OutputPin(object):
   def __init__(self, output_pin):

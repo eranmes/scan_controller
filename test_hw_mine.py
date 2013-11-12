@@ -11,7 +11,7 @@ if __name__ == '__main__':
   status_pin = gpio.OutputPin(STATUS_PIN)
   status_pin.SetHigh()
   poller = gpio.PinPoller(INPUT_PINS)
-  pwm = gpio.PwmPin(PROGRESS_PIN)
+  pwm = gpio.createPwm(PROGRESS_PIN)
   print 'Now press the buttons.'
   for i in range(5):
     events_on_pins = poller.WaitForEvent()
