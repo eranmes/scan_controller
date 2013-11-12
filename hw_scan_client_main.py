@@ -37,6 +37,7 @@ if __name__ == '__main__':
       scan_name = 'scan_' + time.strftime('%Y_%m_%d_%H_%M')
       scan_res = scan_client.scan_and_wait(
           scan_name, blinker.Blink, recipients, scan_mail_subject)
+      last_scan_time = time.time() # Now
       if scan_res:
         status_pin.SetHigh() # Green for OK. Could be red from a previous attempt.
       else:
