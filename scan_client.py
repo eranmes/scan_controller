@@ -7,7 +7,7 @@ import re
 from urllib import urlencode
 import smtplib,email,email.encoders,email.mime.text,email.mime.base
 
-SERVER_URL = 'http://raspberrypi.local:8081/do_scan'
+SERVER_URL = 'http://ha.local:8081/do_scan'
 MAX_WAIT = 60
 POLL_INTERVAL = 1 # seconds
 FROM_ADDRESS = 'scanner@over-here.org'
