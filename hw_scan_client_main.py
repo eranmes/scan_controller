@@ -2,8 +2,8 @@
 import time
 import scan_client
 import gpio
+from email_config import INPUT_PIN_TO_EMAIL
 
-INPUT_PIN_TO_EMAIL = {17: 'eran.mes@gmail.com', 22: 'p.lital@gmail.com'}
 PROGRESS_PIN = 18
 STATUS_PIN = 23
 
