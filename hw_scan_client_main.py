@@ -33,8 +33,8 @@ if __name__ == '__main__':
     print 'Recipients:',recipients
     if recipients and debounce_check:
       scan_mail_subject = 'Your scan at %s' % (
-          time.strftime('%Y-%m-%d %H:%M'))
-      scan_name = 'scan_' + time.strftime('%Y_%m_%d_%H_%M')
+          time.strftime('%Y-%m-%d %H:%M:%S'))
+      scan_name = 'scan_' + time.strftime('%Y_%m_%d_%H_%M:%S')
       scan_res = scan_client.scan_and_wait(
           scan_name, blinker.Blink, recipients, scan_mail_subject)
       last_scan_time = time.time() # Now
