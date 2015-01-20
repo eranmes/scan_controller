@@ -1,0 +1,8 @@
+#!/bin/bash
+set +e
+for i in 17 22 23
+do
+  echo $i > /sys/class/gpio/unexport
+done
+
+python /usr/local/inst/scan_controller/hw_scan_client_main.py >& /var/log/hw_scan_controller.txt &
